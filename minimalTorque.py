@@ -86,7 +86,7 @@ class graphVar():
             minF = Fmin
         else:
             minF = 0
-        print(minF, self.variable['F'])
+        #print(minF, self.variable['F'])
         self.variable["M"] = (self.variable['F'] + minF + (self.variable['T']-self.Tok)*self.kF) * (
                     self.variable['Dv'] / 2 * tan(sin(self.variable['kn'] / (pi * self.variable['Dv'])) +
                                                    arctan(2 * self.variable['kf'] / (3 ** (1 / 2)))) +
