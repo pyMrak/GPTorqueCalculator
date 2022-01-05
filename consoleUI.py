@@ -10,10 +10,6 @@ print("\n")
 
 
 varDict = {
-    "kF": {"value": None,
-           "input": "Koeficient padanja sile s temperaturo (v N/°C): ",
-           "blank": False
-           },
     "Dv": {"value": None,
            "input": "Imenski premer navoja (v mm): ",
            "blank": False
@@ -27,7 +23,11 @@ varDict = {
            "blank": False
            },
     "minF": {"value": None,
-           "input": "Minimalna sila tesnenja (v N) - lahko prazno: ",
+             "input": "Minimalna sila tesnjenja (v N) - lahko prazno: ",
+             "blank": True
+             },
+    "kF": {"value": 0,
+           "input": "Koeficient padanja sile s temperaturo (v N/°C) - lahko prazno: ",
            "blank": True
            },
 }
@@ -46,13 +46,14 @@ for varName in varDict:
         var = input(varDict[varName]["input"])
         if varDict[varName]["blank"]:
             if var == "":
-                varDict[varName]["value"] = None
+                #varDict[varName]["value"] = None
                 break
         try:
-            varDict[varName]["value"] = float(var)
+            varDict[varName]["value"] = float(var.replace(',', '.'))
             break
         except ValueError:
             print(errFloatMsg)
+print("------------------------------------------------\n\n")
 
 Graph = minimalTorque.graphVar(Dv=varDict["Dv"]["value"],
                                Dk=varDict["Dk"]["value"],
@@ -60,11 +61,18 @@ Graph = minimalTorque.graphVar(Dv=varDict["Dv"]["value"],
                                kF=varDict["kF"]["value"],
                                minForce=varDict["minF"]["value"])
 
+if Graph.kF == 0:
+    options = ["kf", "F", "M"]
+    optionText = "'kf', 'F' in 'M'"
+else:
+    options = ["kf", "F", "M", "T"]
+    optionText = "'kf', 'F', 'M' in 'T'"
+
 exit = ""
-while exit != 'e':
+while True:#exit != 'e':
     while True:
-        cont = input("Izberi količino na X osi (možnosti: 'kf', 'F', 'M' in 'T'): ")
-        if cont in ["kf", "F", "M", "T"]:
+        cont = input("Izberi količino na X osi (možnosti: {0}): ".format(optionText))
+        if cont in options:
             break
         else:
             print(errContPck)
@@ -72,7 +80,7 @@ while exit != 'e':
         while True:
             var = input(minMaxDict[varName]["input"].format(Graph.units[cont]))
             try:
-                minMaxDict[varName]["value"] = float(var)
+                minMaxDict[varName]["value"] = float(var.replace(',', '.'))
                 break
             except ValueError:
                 print(errFloatMsg)
@@ -80,7 +88,7 @@ while exit != 'e':
 
     inputOpt = []
     inputText = "Izberi diskretno količino (možnosti:"
-    for var in ["kf", "F", "M", "T"]:
+    for var in options:
         if var != Graph.cont:
             inputOpt.append(var)
             inputText += " " + var
@@ -99,7 +107,7 @@ while exit != 'e':
             if len(discVals) and val == "":
                 break
             try:
-                discVals.append(float(val))
+                discVals.append(float(val.replace(',', '.')))
                 add = " (pusti prazno za prekinitev)"
                 break
             except ValueError:
@@ -110,7 +118,11 @@ while exit != 'e':
     Graph.setDisc(disc, discVals)
 
     specialPair1 = ("T", "F")
-    allowed = ('F', 'M', 'T')
+
+    if Graph.kF == 0:
+        allowed = ('F', 'M')
+    else:
+        allowed = ('F', 'M', 'T')
     if Graph.cont in specialPair1 and Graph.disc in specialPair1:
         graph = "M"
     elif Graph.cont in "kf" and Graph.disc in "F":
@@ -160,5 +172,5 @@ while exit != 'e':
     print("Zapri graf za nadaljevanje...")
     Graph.plotVariable(title)
 
-    exit = input("Vnesi 'e' za izhod ali 'Enter' za nadaljevanje: ")
+    #exit = input("Vnesi 'e' za izhod ali 'Enter' za nadaljevanje: ")
     print("------------------------------------------------\n\n")
